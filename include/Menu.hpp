@@ -67,7 +67,7 @@ private:
     //  @param  y       y-axis coordinate
     void EditTextPosition(sf::Text &text, float x, float y);
 
-public:
+public: 
     //  Menu class onstructor
     //  @param  context      
     Menu(std::shared_ptr<Context> &context);
