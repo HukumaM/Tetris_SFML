@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Point.hpp"
-#include "config.hpp"
 #include "Field.hpp"
 
 #include <random>

@@ -1,4 +1,5 @@
 #include "Menu.hpp"
+#include "PlayProcess.hpp"
 
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Keyboard.hpp>
@@ -13,7 +14,7 @@ Menu::~Menu()
 }
 
 void Menu::EditTextContent(sf::Text &text, const sf::String &string, unsigned int size,
-                    const sf::Color &color)
+                           const sf::Color &color)
 {
     text.setString(string);
     text.setCharacterSize(size);
@@ -116,31 +117,36 @@ void Menu::Update(sf::Time delta_time)
     if (this->m_play.selected)
     {
         this->EditTextContent(this->m_play.text, this->m_play.text.getString(), 60,
-                       Color_Combination::glaze);
+                              Color_Combination::glaze);
         this->EditTextPosition(this->m_play.text, x_window_size / 2, y_window_size / 2);
     }
     else
     {
-        this->EditTextContent(this->m_play.text, this->m_play.text.getString(), 50,
-                       Color_Combination::chocolate);
-        this->EditTextPosition(this->m_play.text, x_window_size / 2, y_window_size / 2);
+        this->EditTextContent(this->m_play.text, this->m_play.text.getString(),
+                              50, Color_Combination::chocolate);
+        this->EditTextPosition(this->m_play.text,
+                               x_window_size / 2, y_window_size / 2);
     }
 
     if (this->m_exit.selected)
     {
         this->EditTextContent(this->m_exit.text, this->m_exit.text.getString(), 60,
-                       Color_Combination::glaze);
-        this->EditTextPosition(this->m_exit.text, x_window_size / 2, 3 * y_window_size / 5);
+                              Color_Combination::glaze);
+        this->EditTextPosition(this->m_exit.text,
+                               x_window_size / 2, 3 * y_window_size / 5);
     }
     else
     {
         this->EditTextContent(this->m_exit.text, this->m_exit.text.getString(), 50,
-                       Color_Combination::chocolate);
-        this->EditTextPosition(this->m_exit.text, x_window_size / 2, 3 * y_window_size / 5);
+                              Color_Combination::chocolate);
+        this->EditTextPosition(this->m_exit.text,
+                               x_window_size / 2, 3 * y_window_size / 5);
     }
 
     if (this->m_play.pressed)
     {
+        this->m_context->m_states->PushState(
+            std::make_unique<PlayProcess>(this->m_context), true);
     }
     else if (this->m_exit.pressed)
     {

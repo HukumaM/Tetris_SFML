@@ -23,18 +23,18 @@ namespace Tetris
         Field();
         ~Field();
 
-        static bool
-        PermissibilityMovement(const std::vector<Point<std::int16_t>> &shape,
+         bool
+        PermissibilityMovement(const std::vector<Point> &shape,
                                std::int16_t x, std::int16_t y);
 
-        static std::pair<int16_t, int16_t>
-        ReturnToField(const std::vector<Point<std::int16_t>> &shape);
+         std::pair<int16_t, int16_t>
+        ReturnToField(const std::vector<Point> &shape);
 
-        static bool 
-        ShapeOnCellsField(const std::vector<Point<int16_t>> &shape);
+         bool 
+        ShapeOnCellsField(const std::vector<Point> &shape);
 
         void 
-        ShapeToField(const std::vector<Point<std::int16_t>> &shape,
+        ShapeToField(const std::vector<Point> &shape,
                           const int16_t color);
         void
         ClearingLines(Score &score);

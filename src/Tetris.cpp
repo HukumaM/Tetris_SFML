@@ -4,7 +4,7 @@
 Tetris_Game::Tetris_Game()
     : m_context(std::make_shared<Context>())
 {
-    this->m_context->m_window->create(sf::VideoMode(W_LOW, H_LOW), "Tetris",
+    this->m_context->m_window->create(sf::VideoMode(WIDTH_LOW, HEIGHT_LOW), "Tetris",
                                       sf::Style::Titlebar | sf::Style::Close);
     this->m_context->m_states->PushState(std::make_unique<Menu>(this->m_context));
 }

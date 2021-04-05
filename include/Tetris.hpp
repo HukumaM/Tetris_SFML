@@ -16,16 +16,19 @@
 //  An enumeration that stores asset IDs
 enum AssetID
 {
-    MAIN_FONT
+    MAIN_FONT,
+    TILES,
+    BACKGROUND,
+    GAME_OVER
 };
 
 //  An enumeration that stores the game window resolution values
 enum WINDOW_SIZE
 {
-    W_LOW = 360,
-    H_LOW = 720,
-    W_HIGH = 540,
-    H_HIGH = 1080
+    WIDTH_LOW = 540,
+    HEIGHT_LOW = 720,
+    WIDTH_HIGH = 720,
+    HEIGHT_HIGH = 1080
 };
 
 //  A structure that stores smart pointers to assets, states, and a window
@@ -45,6 +48,7 @@ struct Context
         this->m_window = std::make_unique<sf::RenderWindow>();
     }
 };
+
 
 class Tetris_Game
 {
