@@ -1,15 +1,16 @@
-#include "Tetromino.hpp"
-
 #include <cmath>
+
+#include "Tetromino.hpp"
 
 Tetromino::Tetromino()
 {
 }
+
 Tetromino::~Tetromino()
 {
 }
 
-bool Tetromino::Create()
+void Tetromino::Create()
 {
     this->m_color = 1 + this->dist(this->random) % 7;
     this->m_sprite.setTextureRect(
@@ -19,7 +20,6 @@ bool Tetromino::Create()
     this->m_point_rotation = shapes.at(this->m_color).second;
 
     this->m_sprite.setScale(2.f, 2.f);
-    return true;
 }
 
 void Tetromino::Init(const sf::Texture &texture)

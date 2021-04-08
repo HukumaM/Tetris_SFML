@@ -63,7 +63,7 @@ public:
     Tetromino();
     ~Tetromino();
 
-    bool Create();
+    void Create();
     void Init(const sf::Texture &texture);
     void Move(int16_t x_offset, int16_t y_offset);
     bool Rotate(Field& field);

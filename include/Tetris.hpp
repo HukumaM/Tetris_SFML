@@ -17,6 +17,7 @@
 enum AssetID
 {
     MAIN_FONT,
+    SIDE_VIEW,
     TILES,
     BACKGROUND,
     GAME_OVER
@@ -38,7 +39,7 @@ struct Context
     std::unique_ptr<Engine::AssetManager> m_assets;
     //  Pointer to context states
     std::unique_ptr<Engine::StateManager> m_states;
-    //  Pointer to render window 
+    //  Pointer to render window
     std::unique_ptr<sf::RenderWindow> m_window;
 
     Context()
@@ -48,7 +49,6 @@ struct Context
         this->m_window = std::make_unique<sf::RenderWindow>();
     }
 };
-
 
 class Tetris_Game
 {

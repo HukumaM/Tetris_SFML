@@ -13,7 +13,8 @@
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 
-#include <Point.hpp>
+#include "Point.hpp"
+#include "Score.hpp"
 
 class Field
 {
@@ -56,9 +57,6 @@ public:
     PermissibilityMovement(const std::vector<Point> &figure,
                            int16_t x, int16_t y) const;
 
-    bool
-    PermissibilityRotate(const std::vector<Point> &figure) const;
-
     std::pair<int16_t, int16_t>
     ReturnToField(const std::vector<Point> &figure);
 
@@ -68,7 +66,8 @@ public:
     void
     PlaceFigureOnField(const std::vector<Point> &figure,
                        const int16_t color);
-    void ClearLines();
+
+    void ClearLines(Score& score);
     
     void Draw(sf::RenderWindow &window);
 };

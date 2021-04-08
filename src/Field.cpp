@@ -14,8 +14,6 @@ void Field::Init(const sf::Texture &texture)
 {
     this->m_sprite.setTexture(texture);
     this->m_sprite.setScale(2.f, 2.f);
-    //this->m_sprite_background.setScale(360.f / 2200.f, 720.f / 4400.f);
-    //this->m_sprite_background.setTextureRect(sf::IntRect(0, 0, 2200, 4400));
 }
 
 bool Field::PermissibilityMovement(const std::vector<Point> &figure,
@@ -39,11 +37,8 @@ bool Field::PermissibilityMovement(const std::vector<Point> &figure,
     return MOVEMENT_ALLOWED;
 }
 
-bool Field::PermissibilityRotate(const std::vector<Point> &figure) const
-{
-}
-
-std::pair<int16_t, int16_t> Field::ReturnToField(const std::vector<Point> &figure)
+std::pair<int16_t, int16_t> 
+Field::ReturnToField(const std::vector<Point> &figure)
 {
     int16_t x{0}, y{0};
 
@@ -85,7 +80,7 @@ void Field::PlaceFigureOnField(const std::vector<Point> &figure,
     }
 }
 
-void Field::ClearLines()
+void Field::ClearLines(Score &score)
 {
     auto remove_line = std::remove_if(std::rbegin(m_field), std::rend(m_field), [&](auto line) {
         return std::all_of(std::begin(line), std::end(line), [](auto cell) {
@@ -93,7 +88,7 @@ void Field::ClearLines()
         });
     });
 
-    //score.IncreaseScore(std::distance(remove_line, std::rend(field)));
+    score.UpdateScores(std::distance(remove_line, std::rend(m_field)));
 
     std::transform(remove_line, std::rend(m_field), remove_line, [&](auto &line) {
         return line = std::vector<int16_t>(WIDTH_FIELD, 0);

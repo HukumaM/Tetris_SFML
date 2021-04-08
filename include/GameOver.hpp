@@ -6,11 +6,28 @@
 
 #pragma once
 
+#include <memory>
+
+#include <SFML/Graphics/Text.hpp>
+
 #include "State.hpp"
+#include "Tetris.hpp"
+#include "Support.hpp"
 
 class GameOver : public Engine::State
 {
+private:
+    std::shared_ptr<Context> m_context;
 
+private:
+    sf::Text m_gm_title;
+
+private:
+    Button m_restart;
+    Button m_option;
+    Button m_exit;
+
+private:
 public:
     //  Menu class onstructor
     //  @param  context

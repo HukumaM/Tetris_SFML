@@ -1,45 +1,42 @@
 //-----------------------------------------------------------------------
 //  Author      : Nikita Mashtalirov
-//  Created     : 02.04.2021
-//  Description : A class representing the gameplay
+//  Created     : 06.04.2021
+//  Description : A class representing the game over
 //-----------------------------------------------------------------------
 
 #pragma once
 
 #include <memory>
 
-#include <SFML/System/Clock.hpp>
-#include <SFML/System/Time.hpp>
+#include <SFML/Graphics/Text.hpp>
 
-#include "Tetris.hpp"
 #include "State.hpp"
+#include "Tetris.hpp"
+#include "Support.hpp"
 
-#include "Tetromino.hpp"
-#include "Field.hpp"
-#include "Score.hpp"
-
-class PlayProcess : public Engine::State
+class PauseProcess : public Engine::State
 {
 private:
     std::shared_ptr<Context> m_context;
 
-    std::shared_ptr<Tetromino> m_tetromino;
-    std::shared_ptr<Field> m_field;
-    std::shared_ptr<Score> m_score;
+private:
+    sf::Text m_stat;
+    sf::Text m_pause;
 
 private:
-    sf::Time m_elapsed_time_fall;
-    sf::Time m_elapsed_time_tick;
-
-    sf::Time m_time_fall;
-    sf::Time m_time_tick;
+    Button m_continue;
+    Button m_restart;
+    Button m_option;
+    Button m_exit;
 
 private:
-    bool m_pause;
+    void UpdateButton(Button &button, float x_pos, float y_pos);
 
 public:
-    PlayProcess(std::shared_ptr<Context> &context);
-    ~PlayProcess();
+    //  Menu class onstructor
+    //  @param  context
+    PauseProcess(std::shared_ptr<Context> &context);
+    ~PauseProcess();
 
 public:
     //  Overriding the method for initialization class data
@@ -54,10 +51,4 @@ public:
 
     //  Overriding the method for drawing sprites and text
     void Draw() override;
-
-    //   method for pausing the state
-    void Pause() override;
-
-    //   method for launching the state
-    void Launch() override;
 };
