@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <map>
+#include <string>
 #include <fstream>
 
 #include <SFML/Graphics/Text.hpp>
@@ -16,10 +18,14 @@
 class Score
 {
 private:
-    const int16_t LINE_REWARD[5]{0, 100, 300, 500, 800};
+    const int16_t m_line_reward[5]{0, 100, 300, 500, 800};
+    std::pair<int16_t, bool> m_level;
     int32_t m_score;
     int16_t m_score_lines;
-    std::pair<int16_t, int16_t> m_level;
+
+private:
+    std::map<int32_t, std::string, std::greater<int32_t>> m_ranking_table;
+    sf::Text m_text_line;
 
 private:
     sf::Sprite m_sprite;
@@ -33,6 +39,7 @@ public:
 
     void IncreaseScores(const int16_t value);
     void UpdateScores(const int16_t count_lines);
+    void UpdateRankingTable();
     void SaveScores();
     bool LevelChanged();
     inline int16_t GetScoreLines() const { return m_score_lines; }

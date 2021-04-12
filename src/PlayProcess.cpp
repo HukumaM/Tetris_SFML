@@ -134,6 +134,7 @@ void PlayProcess::Update(sf::Time delta_time)
                 {
                     m_context->m_states->PushState(std::make_unique<GameOver>(m_context), true);
                     m_score->SaveScores();
+                    m_score->UpdateRankingTable();
                 }
                 m_field->ClearLines(*m_score);
                 if (m_score->LevelChanged())
