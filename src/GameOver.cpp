@@ -25,23 +25,35 @@ void GameOver::Init()
 
     // Title text
     m_gm_title.setFont(m_context->m_assets->GetFont(MAIN_FONT));
-    EditTextContent(m_gm_title, "GAME OVER", 54, Color_Combination::kakao);
+    EditTextContent(m_gm_title, "GAME OVER", 54, Color_Combination::title);
     EditTextPosition(m_gm_title, x_window_size / 2, y_window_size / 8);
 
     //  Text of the play button
     m_restart.text.setFont(m_context->m_assets->GetFont(MAIN_FONT));
-    EditTextContent(m_restart.text, "RESTART", 50, Color_Combination::chocolate);
+    EditTextContent(m_restart.text, "RESTART", 50, Color_Combination::button);
     EditTextPosition(m_restart.text, x_window_size / 2, y_window_size / 2);
 
     // Text of the menu button
     m_exit.text.setFont(m_context->m_assets->GetFont(MAIN_FONT));
-    EditTextContent(m_exit.text, "EXIT", 50, Color_Combination::chocolate);
+    EditTextContent(m_exit.text, "EXIT", 50, Color_Combination::button);
     EditTextPosition(m_exit.text, x_window_size / 2, 3 * y_window_size / 5);
 
     // Text of the exit button
     m_exit.text.setFont(m_context->m_assets->GetFont(MAIN_FONT));
-    EditTextContent(m_exit.text, "EXIT", 50, Color_Combination::chocolate);
+    EditTextContent(m_exit.text, "EXIT", 50, Color_Combination::button);
     EditTextPosition(m_exit.text, x_window_size / 2, 3 * y_window_size / 5);
+
+    // Audio
+    if (m_sound_buffer.loadFromFile("assets/audio/selection.wav"))
+    {
+        m_sound_selection.setBuffer(m_sound_buffer);
+        m_sound_selection.setVolume(50.f);
+    }
+    if (m_music.openFromFile("assets/audio/game_over.ogg"))
+    {
+        m_music.setVolume(100.f);
+        m_music.play();
+    }
 }
 
 void GameOver::ProcessInput()
@@ -64,6 +76,7 @@ void GameOver::ProcessInput()
             }
             case sf::Keyboard::Up:
             {
+                m_sound_selection.play();
                 if (!m_restart.selected)
                 {
                     m_restart.selected = true;
@@ -73,6 +86,7 @@ void GameOver::ProcessInput()
             }
             case sf::Keyboard::Down:
             {
+                m_sound_selection.play();
                 if (!m_exit.selected)
                 {
                     m_restart.selected = false;
@@ -82,6 +96,7 @@ void GameOver::ProcessInput()
             }
             case sf::Keyboard::Return:
             {
+                m_sound_selection.play();
                 m_restart.pressed = false;
                 m_exit.pressed = false;
 
@@ -110,13 +125,13 @@ void GameOver::Update(sf::Time delta_time)
     if (m_restart.selected)
     {
         EditTextContent(m_restart.text, m_restart.text.getString(), 60,
-                        Color_Combination::glaze);
+                        Color_Combination::button_pressed);
         EditTextPosition(m_restart.text, x_window_size / 2, y_window_size / 2);
     }
     else
     {
         EditTextContent(m_restart.text, m_restart.text.getString(),
-                        50, Color_Combination::chocolate);
+                        50, Color_Combination::button);
         EditTextPosition(m_restart.text,
                          x_window_size / 2, y_window_size / 2);
     }
@@ -124,14 +139,14 @@ void GameOver::Update(sf::Time delta_time)
     if (m_exit.selected)
     {
         EditTextContent(m_exit.text, m_exit.text.getString(), 60,
-                        Color_Combination::glaze);
+                        Color_Combination::button_pressed);
         EditTextPosition(m_exit.text,
                          x_window_size / 2, 3 * y_window_size / 5);
     }
     else
     {
         EditTextContent(m_exit.text, m_exit.text.getString(), 50,
-                        Color_Combination::chocolate);
+                        Color_Combination::button);
         EditTextPosition(m_exit.text,
                          x_window_size / 2, 3 * y_window_size / 5);
     }
@@ -149,7 +164,7 @@ void GameOver::Update(sf::Time delta_time)
 
 void GameOver::Draw()
 {
-    m_context->m_window->clear(Color_Combination::toffee);
+    m_context->m_window->clear(Color_Combination::background);
     m_context->m_window->draw(m_gm_title);
     m_context->m_window->draw(m_restart.text);
     m_context->m_window->draw(m_exit.text);

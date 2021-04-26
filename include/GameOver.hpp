@@ -8,6 +8,10 @@
 
 #include <memory>
 
+#include <SFML/Audio/Music.hpp>
+#include <SFML/Audio/Sound.hpp>
+#include <SFML/Audio/SoundBuffer.hpp>
+
 #include <SFML/Graphics/Text.hpp>
 
 #include "State.hpp"
@@ -28,6 +32,10 @@ private:
     Button m_exit;
 
 private:
+    sf::SoundBuffer m_sound_buffer;
+    sf::Sound m_sound_selection;
+    sf::Music m_music;
+
 public:
     //  Menu class onstructor
     //  @param  context

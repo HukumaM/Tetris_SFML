@@ -24,28 +24,41 @@ void PauseProcess::Init()
 
     // PauseProcess text
     m_pause.setFont(m_context->m_assets->GetFont(MAIN_FONT));
-    EditTextContent(m_pause, "PAUSE", 100, Color_Combination::kakao);
+    EditTextContent(m_pause, "PAUSE", 100, Color_Combination::title);
     EditTextPosition(m_pause, x_window_size / 2, y_window_size / 8);
 
     //  Text of the continue button
     m_continue.text.setFont(m_context->m_assets->GetFont(MAIN_FONT));
-    EditTextContent(m_continue.text, "CONTINUE", 50, Color_Combination::chocolate);
+    EditTextContent(m_continue.text, "CONTINUE", 50, Color_Combination::button);
     EditTextPosition(m_continue.text, x_window_size / 4, y_window_size / 2);
 
     //  Text of the restart button
     m_restart.text.setFont(m_context->m_assets->GetFont(MAIN_FONT));
-    EditTextContent(m_restart.text, "RESTART", 50, Color_Combination::chocolate);
+    EditTextContent(m_restart.text, "RESTART", 50, Color_Combination::button);
     EditTextPosition(m_restart.text, x_window_size / 4, 3 * y_window_size / 5);
 
     // Text of the option button
     m_option.text.setFont(m_context->m_assets->GetFont(MAIN_FONT));
-    EditTextContent(m_option.text, "OPTION", 50, Color_Combination::chocolate);
+    EditTextContent(m_option.text, "OPTION", 50, Color_Combination::button);
     EditTextPosition(m_option.text, x_window_size / 4, 7 * y_window_size / 10);
 
     // Text of the exit button
     m_exit.text.setFont(m_context->m_assets->GetFont(MAIN_FONT));
-    EditTextContent(m_exit.text, "EXIT", 50, Color_Combination::chocolate);
+    EditTextContent(m_exit.text, "EXIT", 50, Color_Combination::button);
     EditTextPosition(m_exit.text, x_window_size / 4, 4 * y_window_size / 5);
+
+    // Audio
+    if (m_sound_buffer.loadFromFile("assets/audio/selection.wav"))
+    {
+        m_sound_selection.setBuffer(m_sound_buffer);
+        m_sound_selection.setVolume(50.f);
+    }
+    if (m_music.openFromFile("assets/audio/title.ogg"))
+    {
+        m_music.setLoop(true);
+        m_music.setVolume(50.f);
+        m_music.play();
+    }
 }
 
 void PauseProcess::ProcessInput()
@@ -55,6 +68,7 @@ void PauseProcess::ProcessInput()
     {
         if (event.type == sf::Event::Closed)
         {
+            m_music.stop();
             m_context->m_window->close();
         }
         else if (event.type == sf::Event::KeyPressed)
@@ -63,11 +77,14 @@ void PauseProcess::ProcessInput()
             {
             case sf::Keyboard::Escape:
             {
+                m_music.stop();
                 m_context->m_states->PopState();
                 break;
             }
             case sf::Keyboard::Up:
             {
+                m_sound_selection.play();
+
                 if (m_exit.selected)
                 {
                     m_exit.selected = false;
@@ -91,6 +108,8 @@ void PauseProcess::ProcessInput()
             }
             case sf::Keyboard::Down:
             {
+                m_sound_selection.play();
+
                 if (m_continue.selected)
                 {
                     m_continue.selected = false;
@@ -114,10 +133,9 @@ void PauseProcess::ProcessInput()
             }
             case sf::Keyboard::Return:
             {
-                m_continue.pressed = false;
-                m_restart.pressed = false;
-                m_option.pressed = false;
-                m_exit.pressed = false;
+                m_sound_selection.play();
+                m_continue.pressed = m_restart.pressed = false;
+                m_option.pressed = m_exit.pressed = false;
 
                 if (m_continue.selected)
                 {
@@ -149,13 +167,13 @@ void PauseProcess::UpdateButton(Button &button, float x_pos, float y_pos)
     if (button.selected)
     {
         EditTextContent(button.text, button.text.getString(),
-                        60, Color_Combination::glaze);
+                        60, Color_Combination::button_pressed);
         EditTextPosition(button.text, x_pos, y_pos);
     }
     else
     {
         EditTextContent(button.text, button.text.getString(),
-                        50, Color_Combination::chocolate);
+                        50, Color_Combination::button);
         EditTextPosition(button.text, x_pos, y_pos);
     }
 }
@@ -172,10 +190,12 @@ void PauseProcess::Update(sf::Time delta_time)
 
     if (m_continue.pressed)
     {
+        m_music.stop();
         m_context->m_states->PopState();
     }
     else if (m_restart.pressed)
     {
+        m_music.stop();
         m_context->m_states->PushState(
             std::make_unique<PlayProcess>(m_context), true);
     }
@@ -184,13 +204,14 @@ void PauseProcess::Update(sf::Time delta_time)
     }
     else if (m_exit.pressed)
     {
+        m_music.stop();
         m_context->m_window->close();
     }
 }
 
 void PauseProcess::Draw()
 {
-    m_context->m_window->clear(Color_Combination::toffee);
+    m_context->m_window->clear(Color_Combination::background);
     m_context->m_window->draw(m_pause);
     m_context->m_window->draw(m_continue.text);
     m_context->m_window->draw(m_restart.text);

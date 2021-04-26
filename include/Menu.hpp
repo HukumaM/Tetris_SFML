@@ -10,6 +10,10 @@
 
 #include <SFML/Graphics/Text.hpp>
 
+#include <SFML/Audio/Music.hpp>
+#include <SFML/Audio/Sound.hpp>
+#include <SFML/Audio/SoundBuffer.hpp>
+
 #include "State.hpp"
 #include "Tetris.hpp"
 #include "Support.hpp"
@@ -27,7 +31,9 @@ private:
     Button m_exit;
 
 private:
-    
+    sf::Music m_music;
+    sf::SoundBuffer m_sound_buffer;
+    sf::Sound m_sound_selection;
 
 public: 
     //  Menu class onstructor

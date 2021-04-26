@@ -18,7 +18,17 @@ enum AssetID
 {
     MAIN_FONT,
     SIDE_VIEW,
+    NUMBERS,
+    SCORE_TABLE,
+    LINES_TABLE,
+    LINE_TABLE,
+    
     TILES,
+    TILES_RAINBOW,
+    TILES_RAINBOW_SHADOW,
+    TILES_SEA,
+    TILES_SEA_SHADOW,
+
     BACKGROUND,
     GAME_OVER
 };

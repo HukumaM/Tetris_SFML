@@ -42,4 +42,9 @@ namespace Color_Combination
     static const sf::Color grey_blue = sf::Color(0, 68, 69);
     static const sf::Color rain = sf::Color(44, 120, 115);
     static const sf::Color herbs = sf::Color(111, 185, 143);
+
+    static const sf::Color title = sf::Color(18, 50, 66);
+    static const sf::Color button = sf::Color(164, 208, 185);
+    static const sf::Color background = sf::Color(82, 139, 144);
+    static const sf::Color button_pressed = sf::Color(216, 215, 193);
 }

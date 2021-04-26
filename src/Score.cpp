@@ -3,10 +3,12 @@
 #include "Score.hpp"
 #include "Support.hpp"
 
+const int16_t Score::m_line_reward[5] = {0, 100, 300, 500, 800};
+
 Score::Score()
-    : m_score(0),
-      m_score_lines(0),
-      m_level(1, false)
+    : m_line_count(0),
+      m_score_points(0),
+      m_level(0, false)
 {
 }
 
@@ -14,26 +16,32 @@ Score::~Score()
 {
 }
 
-void Score::Init(const sf::Texture &texture, const sf::Font &font)
+void Score::Init(const sf::Texture &score,
+                 const sf::Texture &lines,
+                 const sf::Texture &line,
+                 const sf::Texture &number,
+                 const sf::Font &font)
 {
-    m_sprite.setTexture(texture);
+    m_sprite_score.setTexture(score);
+    m_sprite_lines.setTexture(lines);
+    m_sprite_line.setTexture(line);
+    m_sprite_numbers.setTexture(number);
 
-    m_text_score.setFont(font);
-    m_text_line.setFont(font);
-
-    UpdateRankingTable();
-
-    EditTextContent(m_text_score, "0", 30, Color_Combination::herbs);
-    EditTextPosition(m_text_score, 450, 68);
+    m_sprite_score.setTextureRect(sf::IntRect(0, 0, 180, 360));
+    m_sprite_score.setPosition(360.f, 0.f);
+    m_sprite_lines.setTextureRect(sf::IntRect(0, 0, 180, 90));
+    m_sprite_lines.setPosition(360.f, 306.f);
+    m_sprite_line.setTextureRect(sf::IntRect(0, 0, 180, 324));
+    m_sprite_line.setPosition(360.f, 396.f);
 }
 
 void Score::UpdateScores(const int16_t count_lines)
 {
-    m_score_lines += count_lines;
+    m_line_count += count_lines;
 
-    if (m_score_lines >= 10)
+    if (m_line_count >= 10)
     {
-        m_score_lines -= 10;
+        m_line_count -= 10;
         m_level.first++;
         m_level.second = true;
     }
@@ -42,11 +50,7 @@ void Score::UpdateScores(const int16_t count_lines)
         m_level.second = false;
     }
 
-    m_score += m_line_reward[count_lines] * m_level.first;
-
-    EditTextContent(m_text_score, std::to_string(m_score), 30,
-                    Color_Combination::herbs);
-    EditTextPosition(m_text_score, 450, 68);
+    m_score_points += m_line_reward[count_lines] * m_level.first;
 }
 
 void Score::UpdateRankingTable()
@@ -67,7 +71,7 @@ void Score::UpdateRankingTable()
 
 void Score::IncreaseScores(const int16_t value)
 {
-    m_score += value;
+    m_score_points += value;
 }
 
 void Score::SaveScores()
@@ -76,7 +80,7 @@ void Score::SaveScores()
     if (ranking_file.is_open())
     {
         ranking_file << std::endl
-                     << "Nikita\t" << m_score << std::flush;
+                     << "Nikita\t" << m_score_points << std::flush;
     }
     else
     {
@@ -92,35 +96,45 @@ bool Score::LevelChanged()
 
 void Score::Draw(sf::RenderWindow &window)
 {
+    // int16_t line_number{1};
+    // for (auto line{m_ranking_table.begin()};
+    //      line_number <= 10 && line != m_ranking_table.end();
+    //      line++, ++line_number)
+    // {
+    //     EditTextContent(m_text_line, line->second + " " + std::to_string(line->first),
+    //                     25, Color_Combination::herbs);
+    //     EditTextPosition(m_text_line, 450, 108 + line_number * 36);
+    //     window.draw(m_text_line);
+    // }
 
-    for (size_t y{0}; y < 40; ++y)
+    window.draw(m_sprite_score);
+    std::string score(std::to_string(m_score_points));
+    score.insert(0, 6 - score.size(), '0');
+    for (size_t i{0}; i < 6; ++i)
     {
-        for (size_t x{0}; x < 10; ++x)
-        {
-            if (y == 0 || y == 39 || x == 0 || x == 9 || y == 2 || y == 5)
-            {
-                m_sprite.setTextureRect(sf::IntRect(126, 0, 18, 18));
-                m_sprite.setPosition(360 + x * 18, y * 18);
-            }
-            else
-            {
-                m_sprite.setTextureRect(sf::IntRect(0, 0, 18, 18));
-                m_sprite.setPosition(360 + x * 18, y * 18);
-            }
-            window.draw(m_sprite);
-        }
+        m_sprite_numbers.setTextureRect(sf::IntRect((score.at(i) - 48) * 10, 0, 10, 18));
+        m_sprite_numbers.setPosition(399 + i * 18, 62);
+        window.draw(m_sprite_numbers);
     }
 
-    int16_t line_number{1};
-    for (auto line{m_ranking_table.begin()};
-         line_number <= 10 && line != m_ranking_table.end();
-         line++, ++line_number)
+    std::string level(std::to_string(m_level.first));
+    level.insert(0, 2 - level.size(), '0');
+    for (size_t i{0}; i < 2; ++i)
     {
-        EditTextContent(m_text_line, line->second + " " + std::to_string(line->first),
-                        25, Color_Combination::herbs);
-        EditTextPosition(m_text_line, 450, 108 + line_number * 36);
-        window.draw(m_text_line);
+        m_sprite_numbers.setTextureRect(sf::IntRect((level.at(i) - 48) * 10, 0, 10, 18));
+        m_sprite_numbers.setPosition(437 + i * 15, 258);
+        window.draw(m_sprite_numbers);
     }
 
-    window.draw(m_text_score);
+    window.draw(m_sprite_lines);
+    window.draw(m_sprite_line);
+
+    std::string lines(std::to_string(m_line_count + (m_level.first) * 10));
+    lines.insert(0, 3 - lines.size(), '0');
+    for (size_t i{0}; i < 3; ++i)
+    {
+        m_sprite_numbers.setTextureRect(sf::IntRect((lines.at(i) - 48) * 10, 0, 10, 18));
+        m_sprite_numbers.setPosition(430 + i * 15, 348);
+        window.draw(m_sprite_numbers);
+    }
 }

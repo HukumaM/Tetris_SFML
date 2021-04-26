@@ -18,30 +18,49 @@
 class Score
 {
 private:
-    const int16_t m_line_reward[5]{0, 100, 300, 500, 800};
+    static const int16_t m_line_reward[5];
+
+    int16_t m_line_count;
+
+    int32_t m_score_points;
+
     std::pair<int16_t, bool> m_level;
-    int32_t m_score;
-    int16_t m_score_lines;
+
+    //const int16_t m_line_reward[5]{0, 100, 300, 500, 800};
+    //std::pair<int16_t, bool> m_level;
+    //int32_t m_score;
+    //int16_t m_score_lines;
 
 private:
     std::map<int32_t, std::string, std::greater<int32_t>> m_ranking_table;
-    sf::Text m_text_line;
+    //sf::Text m_text_line;
 
 private:
-    sf::Sprite m_sprite;
-    sf::Text m_text_score;
+    sf::Sprite m_sprite_score;
+    sf::Sprite m_sprite_lines;
+    sf::Sprite m_sprite_line;
+
+    sf::Sprite m_sprite_numbers;
+    //sf::Text m_text_score;
 
 public:
     Score();
     ~Score();
 
-    void Init(const sf::Texture &texture, const sf::Font &font);
+    void Init(const sf::Texture &score,
+              const sf::Texture &lines,
+              const sf::Texture &line,
+              const sf::Texture &number,
+              const sf::Font &font);
 
     void IncreaseScores(const int16_t value);
     void UpdateScores(const int16_t count_lines);
     void UpdateRankingTable();
     void SaveScores();
     bool LevelChanged();
-    inline int16_t GetScoreLines() const { return m_score_lines; }
+    
+    inline const int16_t
+    GetLevel() const { return m_level.first; }
+    //inline int16_t GetScoreLines() const { return m_score_lines; }
     void Draw(sf::RenderWindow &window);
 };

@@ -11,6 +11,10 @@
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/Time.hpp>
 
+#include <SFML/Audio/Music.hpp>
+#include <SFML/Audio/Sound.hpp>
+#include <SFML/Audio/SoundBuffer.hpp>
+
 #include "Tetris.hpp"
 #include "State.hpp"
 
@@ -33,6 +37,21 @@ private:
 
     sf::Time m_time_fall;
     sf::Time m_time_tick;
+
+private:
+    sf::Music m_music;
+
+    sf::SoundBuffer m_sound_buffer;
+    sf::Sound m_sound;
+    
+    sf::SoundBuffer m_buffer_clear_line;
+    sf::Sound m_sound_clear_line;
+
+    sf::SoundBuffer m_buffer_fall;
+    sf::Sound m_sound_fall;
+
+    sf::SoundBuffer m_buffer_move;
+    sf::Sound m_sound_move;
 
 private:
     bool m_pause;
