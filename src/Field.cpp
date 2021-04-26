@@ -80,19 +80,20 @@ void Field::PlaceFigureOnField(const std::vector<Point> &figure,
     }
 }
 
-void Field::ClearLines(Score &score)
+bool Field::ClearLines(Score &score)
 {
     auto remove_line = std::remove_if(std::rbegin(m_field), std::rend(m_field), [&](auto line) {
         return std::all_of(std::begin(line), std::end(line), [](auto cell) {
             return cell;
         });
     });
-
-    score.UpdateScores(std::distance(remove_line, std::rend(m_field)));
+    auto flag_clear{std::distance(remove_line, std::rend(m_field))};
+    score.UpdateScores(flag_clear);
 
     std::transform(remove_line, std::rend(m_field), remove_line, [&](auto &line) {
         return line = std::vector<int16_t>(WIDTH_FIELD, 0);
     });
+    return flag_clear;
 }
 
 void Field::Draw(sf::RenderWindow &window)
