@@ -67,7 +67,7 @@ public:
     PlaceFigureOnField(const std::vector<Point> &figure,
                        const int16_t color);
 
-    void ClearLines(Score& score);
+    bool ClearLines(Score& score);
     
     void Draw(sf::RenderWindow &window);
 };
