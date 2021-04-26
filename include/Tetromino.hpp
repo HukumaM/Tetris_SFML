@@ -7,6 +7,7 @@
 #pragma once
 
 #include <vector>
+#include <list>
 #include <random>
 
 #include <SFML/Graphics/Sprite.hpp>
@@ -18,7 +19,7 @@
 
 enum Direction
 {
-    LEFT = -1, 
+    LEFT = -1,
     RIGTH = 1,
     DOWN = 1,
     UP = -1
@@ -45,16 +46,20 @@ class Tetromino
 {
 private:
     sf::Sprite m_sprite;
+    sf::Sprite m_sprite_shadow;
 
 private:
+    std::list<int16_t> m_list_figures;
     std::vector<Point> m_figure;
     std::vector<Point> m_shadow;
+
     Point m_point_rotation;
+
     int16_t m_color;
 
 private:
     std::random_device random;
-    std::uniform_int_distribution<int16_t> dist{1, INT16_MAX};
+    std::uniform_int_distribution<int16_t> dist{1, 7};
 
 private:
     void GetShadow();
@@ -64,14 +69,27 @@ public:
     ~Tetromino();
 
     void Create();
-    void Init(const sf::Texture &texture);
+    void CreateNextFigure();
+    void Init(const sf::Texture &texture,
+              const sf::Texture &texture_shadow);
+
     void Move(int16_t x_offset, int16_t y_offset);
-    bool Rotate(Field& field);
+    bool Rotate(Field &field);
     void ShadowDisplay(Field &field);
     void Draw(sf::RenderWindow &window);
 
-    const std::vector<Point> &
-    GetFigure() const;
+public:
+    inline const std::vector<Point> &
+    GetCurrentFigure() const
+    {
+        return m_figure;
+    }
+
+    inline const std::vector<Point>
+    GetNextFigure() const
+    {
+        return std::vector<Point>(shapes.at(m_list_figures.back()).first);
+    }
 
     inline const int16_t
     GetColor() const

@@ -12,20 +12,37 @@ Tetromino::~Tetromino()
 
 void Tetromino::Create()
 {
-    this->m_color = 1 + this->dist(this->random) % 7;
-    this->m_sprite.setTextureRect(
-        sf::IntRect(this->m_color * 18, 0, 18, 18));
+    m_color = m_list_figures.front();
 
-    this->m_figure = shapes.at(this->m_color).first;
-    this->m_point_rotation = shapes.at(this->m_color).second;
+    m_sprite.setTextureRect(
+        sf::IntRect(m_color * 18, 0, 18, 18));
+    m_sprite_shadow.setTextureRect(
+        sf::IntRect(m_color * 18, 0, 18, 18));
 
-    this->m_sprite.setScale(2.f, 2.f);
+    m_figure = shapes.at(m_color).first;
+    m_point_rotation = shapes.at(m_color).second;
+
+    m_sprite.setScale(2.f, 2.f);
+    m_sprite_shadow.setScale(2.f, 2.f);
 }
 
-void Tetromino::Init(const sf::Texture &texture)
+void Tetromino::CreateNextFigure()
 {
-    this->m_sprite.setTexture(texture);
-    this->Create();
+    m_list_figures.pop_front();
+    m_list_figures.push_back(dist(random));
+}
+
+void Tetromino::Init(const sf::Texture &texture,
+                     const sf::Texture &texture_shadow)
+{
+    m_sprite.setTexture(texture);
+    m_sprite_shadow.setTexture(texture_shadow);
+
+    m_list_figures.push_back(dist(random));
+    m_list_figures.push_back(dist(random));
+
+    Create();
+
 }
 
 void Tetromino::Move(int16_t x_offset, int16_t y_offset)
@@ -104,30 +121,27 @@ void Tetromino::ShadowDisplay(Field &field)
 
 void Tetromino::Draw(sf::RenderWindow &window)
 {
-    this->m_sprite.setTextureRect(sf::IntRect(m_color * 18, 0, 18, 18));
-    for(const auto point : this->m_shadow)
-    {
-        this->m_sprite.setPosition(point.x * 36, point.y * 36);
-        window.draw(this->m_sprite);
-    }
-    
-    this->m_sprite.setTextureRect(sf::IntRect(2, 2, 15, 15));
+    this->m_sprite_shadow.setTextureRect(sf::IntRect(m_color * 18, 0, 18, 18));
     for (const auto point : this->m_shadow)
     {
-        this->m_sprite.setPosition(point.x * 36 + 2, point.y * 36 + 2);
-        window.draw(this->m_sprite);
+        this->m_sprite_shadow.setPosition(point.x * 36, point.y * 36);
+        window.draw(this->m_sprite_shadow);
     }
-    
+
+    m_sprite.setScale(2.f, 2.f);
     this->m_sprite.setTextureRect(sf::IntRect(m_color * 18, 0, 18, 18));
     for (const auto point : this->m_figure)
     {
         this->m_sprite.setPosition(point.x * 36, point.y * 36);
         window.draw(this->m_sprite);
     }
-}
+    
 
-const std::vector<Point> &
-Tetromino::GetFigure() const
-{
-    return this->m_figure;
+    m_sprite.setScale(1.f, 1.f);
+    m_sprite.setTextureRect(sf::IntRect(m_list_figures.back() * 18, 0, 18, 18));
+    for (const auto point : shapes.at(m_list_figures.back()).first)
+    {
+        m_sprite.setPosition(414 + (point.x - 3) * 18, 155 + point.y * 18);
+        window.draw(m_sprite);
+    }
 }
