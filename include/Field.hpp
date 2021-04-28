@@ -32,11 +32,13 @@ private:
 
     std::vector<std::vector<int16_t>> m_field;
 
+    int16_t m_number_player;
+
 private:
     sf::Sprite m_sprite;
 
 public:
-    Field();
+    Field(int16_t number_player);
     ~Field();
 
     void Init(const sf::Texture &texture);

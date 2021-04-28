@@ -13,6 +13,8 @@
 #include "AssetManager.hpp"
 #include "StateManager.hpp"
 
+#include "Audio.hpp"
+
 //  An enumeration that stores asset IDs
 enum AssetID
 {

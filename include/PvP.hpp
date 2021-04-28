@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------
 //  Author      : Nikita Mashtalirov
-//  Created     : 02.04.2021
-//  Description : A class representing the gameplay
+//  Created     : 27.04.2021
+//  Description : A class representing the gameplay PvP
 //-----------------------------------------------------------------------
 
 #pragma once
@@ -22,20 +22,37 @@
 #include "Field.hpp"
 #include "Score.hpp"
 
-class PlayProcess : public Engine::State
+struct Player
 {
-private:
-    std::shared_ptr<Context> m_context;
+public:
     std::shared_ptr<Tetromino> m_tetromino;
     std::shared_ptr<Field> m_field;
     std::shared_ptr<Score> m_score;
 
-private:
-    sf::Time m_elapsed_time_fall;
-    sf::Time m_elapsed_time_tick;
+public:
+    sf::Time elapsed_time_fall;
+    sf::Time elapsed_time_tick;
 
-    sf::Time m_time_fall;
-    sf::Time m_time_tick;
+    sf::Time time_fall;
+    sf::Time time_tick;
+
+    bool game_over;
+
+public:
+    Player(
+        std::shared_ptr<Tetromino> tetromino,
+        std::shared_ptr<Field> field,
+        std::shared_ptr<Score> score);
+};
+
+class PvP : public Engine::State
+{
+private:
+    std::shared_ptr<Context> m_context;
+
+private:
+    Player m_player_1;
+    Player m_player_2;
 
 private:
     std::unique_ptr<sf::Music> m_music;
@@ -44,8 +61,8 @@ private:
     bool m_pause;
 
 public:
-    PlayProcess(std::shared_ptr<Context> &context);
-    ~PlayProcess();
+    PvP(std::shared_ptr<Context> &context);
+    ~PvP();
 
 public:
     //  Overriding the method for initialization class data

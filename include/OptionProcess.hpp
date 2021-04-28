@@ -1,44 +1,46 @@
 //-----------------------------------------------------------------------
 //  Author      : Nikita Mashtalirov
-//  Created     : 06.04.2021
-//  Description : A class representing the game over
+//  Created     : 26.04.2021
+//  Description : A class representing the 
 //-----------------------------------------------------------------------
 
 #pragma once
 
 #include <memory>
 
+#include <SFML/Graphics/Text.hpp>
+
 #include <SFML/Audio/Music.hpp>
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/Audio/SoundBuffer.hpp>
-
-#include <SFML/Graphics/Text.hpp>
 
 #include "State.hpp"
 #include "Tetris.hpp"
 #include "Support.hpp"
 
-class GameOver : public Engine::State
+class OptionProcess : public Engine::State
 {
 private:
     std::shared_ptr<Context> m_context;
 
 private:
-    sf::Text m_gm_title;
+    float m_music_volume;
+    float m_fx_volume;
 
 private:
     enum ButtonType
     {
-        MENU,
-        EXIT
+        Music,
+        FX,
+        Back
     };
     std::vector<Button> m_button;
 
 public:
     //  Menu class onstructor
     //  @param  context
-    GameOver(std::shared_ptr<Context> &context);
-    ~GameOver();
+    OptionProcess(std::shared_ptr<Context> &context);
+    ~OptionProcess();
 
 public:
     //  Overriding the method for initialization class data

@@ -5,10 +5,11 @@
 
 const int16_t Score::m_line_reward[5] = {0, 100, 300, 500, 800};
 
-Score::Score()
+Score::Score(int16_t number_player)
     : m_line_count(0),
       m_score_points(0),
-      m_level(0, false)
+      m_level(0, false),
+      m_number_player(number_player)
 {
 }
 
@@ -19,8 +20,7 @@ Score::~Score()
 void Score::Init(const sf::Texture &score,
                  const sf::Texture &lines,
                  const sf::Texture &line,
-                 const sf::Texture &number,
-                 const sf::Font &font)
+                 const sf::Texture &number)
 {
     m_sprite_score.setTexture(score);
     m_sprite_lines.setTexture(lines);
@@ -28,11 +28,26 @@ void Score::Init(const sf::Texture &score,
     m_sprite_numbers.setTexture(number);
 
     m_sprite_score.setTextureRect(sf::IntRect(0, 0, 180, 360));
-    m_sprite_score.setPosition(360.f, 0.f);
+    m_sprite_score.setPosition(m_number_player ? 900.f : 360.f, 0.f);
     m_sprite_lines.setTextureRect(sf::IntRect(0, 0, 180, 90));
-    m_sprite_lines.setPosition(360.f, 306.f);
+    m_sprite_lines.setPosition(m_number_player ? 900.f : 360.f, 306.f);
     m_sprite_line.setTextureRect(sf::IntRect(0, 0, 180, 324));
-    m_sprite_line.setPosition(360.f, 396.f);
+    m_sprite_line.setPosition(m_number_player ? 900.f : 360.f, 396.f);
+
+    //     switch (m_number_player)
+    //     {
+    //     case PlayerNumber::First:
+    //         break;
+    //     case PlayerNumber::Second:
+    //         m_sprite_score.setTextureRect(sf::IntRect(0, 0, 180, 360));
+    //         m_sprite_score.setPosition(900.f, 0.f);
+    //         m_sprite_lines.setTextureRect(sf::IntRect(0, 0, 180, 90));
+    //         m_sprite_lines.setPosition(900.f, 306.f);
+    //         m_sprite_line.setTextureRect(sf::IntRect(0, 0, 180, 324));
+    //         m_sprite_line.setPosition(900.f, 396.f);
+
+    //         break;
+    // }
 }
 
 void Score::UpdateScores(const int16_t count_lines)
@@ -80,7 +95,7 @@ void Score::SaveScores()
     if (ranking_file.is_open())
     {
         ranking_file << std::endl
-                     << "Nikita\t" << m_score_points << std::flush;
+                     << (m_number_player ? "Nikita\t" : "Lera\t") << m_score_points << std::flush;
     }
     else
     {
@@ -96,24 +111,13 @@ bool Score::LevelChanged()
 
 void Score::Draw(sf::RenderWindow &window)
 {
-    // int16_t line_number{1};
-    // for (auto line{m_ranking_table.begin()};
-    //      line_number <= 10 && line != m_ranking_table.end();
-    //      line++, ++line_number)
-    // {
-    //     EditTextContent(m_text_line, line->second + " " + std::to_string(line->first),
-    //                     25, Color_Combination::herbs);
-    //     EditTextPosition(m_text_line, 450, 108 + line_number * 36);
-    //     window.draw(m_text_line);
-    // }
-
     window.draw(m_sprite_score);
     std::string score(std::to_string(m_score_points));
     score.insert(0, 6 - score.size(), '0');
     for (size_t i{0}; i < 6; ++i)
     {
         m_sprite_numbers.setTextureRect(sf::IntRect((score.at(i) - 48) * 10, 0, 10, 18));
-        m_sprite_numbers.setPosition(399 + i * 18, 62);
+        m_sprite_numbers.setPosition((m_number_player ? 540 : 0) + 399 + i * 18, 62);
         window.draw(m_sprite_numbers);
     }
 
@@ -122,7 +126,7 @@ void Score::Draw(sf::RenderWindow &window)
     for (size_t i{0}; i < 2; ++i)
     {
         m_sprite_numbers.setTextureRect(sf::IntRect((level.at(i) - 48) * 10, 0, 10, 18));
-        m_sprite_numbers.setPosition(437 + i * 15, 258);
+        m_sprite_numbers.setPosition((m_number_player ? 540 : 0) + 437 + i * 15, 258);
         window.draw(m_sprite_numbers);
     }
 
@@ -134,7 +138,75 @@ void Score::Draw(sf::RenderWindow &window)
     for (size_t i{0}; i < 3; ++i)
     {
         m_sprite_numbers.setTextureRect(sf::IntRect((lines.at(i) - 48) * 10, 0, 10, 18));
-        m_sprite_numbers.setPosition(430 + i * 15, 348);
+        m_sprite_numbers.setPosition((m_number_player ? 540 : 0) + 430 + i * 15, 348);
         window.draw(m_sprite_numbers);
     }
+
+    // switch (m_number)
+    // {
+    // case PlayerNumber::First:
+    //     window.draw(m_sprite_score);
+    //     std::string score(std::to_string(m_score_points));
+    //     score.insert(0, 6 - score.size(), '0');
+    //     for (size_t i{0}; i < 6; ++i)
+    //     {
+    //         m_sprite_numbers.setTextureRect(sf::IntRect((score.at(i) - 48) * 10, 0, 10, 18));
+    //         m_sprite_numbers.setPosition(399 + i * 18, 62);
+    //         window.draw(m_sprite_numbers);
+    //     }
+
+    //     std::string level(std::to_string(m_level.first));
+    //     level.insert(0, 2 - level.size(), '0');
+    //     for (size_t i{0}; i < 2; ++i)
+    //     {
+    //         m_sprite_numbers.setTextureRect(sf::IntRect((level.at(i) - 48) * 10, 0, 10, 18));
+    //         m_sprite_numbers.setPosition(437 + i * 15, 258);
+    //         window.draw(m_sprite_numbers);
+    //     }
+
+    //     window.draw(m_sprite_lines);
+    //     window.draw(m_sprite_line);
+
+    //     std::string lines(std::to_string(m_line_count + (m_level.first) * 10));
+    //     lines.insert(0, 3 - lines.size(), '0');
+    //     for (size_t i{0}; i < 3; ++i)
+    //     {
+    //         m_sprite_numbers.setTextureRect(sf::IntRect((lines.at(i) - 48) * 10, 0, 10, 18));
+    //         m_sprite_numbers.setPosition(430 + i * 15, 348);
+    //         window.draw(m_sprite_numbers);
+    //     }
+    //     break;
+    // case PlayerNumber::Second:
+    //     window.draw(m_sprite_score);
+    //     std::string score(std::to_string(m_score_points));
+    //     score.insert(0, 6 - score.size(), '0');
+    //     for (size_t i{0}; i < 6; ++i)
+    //     {
+    //         m_sprite_numbers.setTextureRect(sf::IntRect((score.at(i) - 48) * 10, 0, 10, 18));
+    //         m_sprite_numbers.setPosition(1119 + i * 18, 62);
+    //         window.draw(m_sprite_numbers);
+    //     }
+
+    //     std::string level(std::to_string(m_level.first));
+    //     level.insert(0, 2 - level.size(), '0');
+    //     for (size_t i{0}; i < 2; ++i)
+    //     {
+    //         m_sprite_numbers.setTextureRect(sf::IntRect((level.at(i) - 48) * 10, 0, 10, 18));
+    //         m_sprite_numbers.setPosition(1157 + i * 15, 258);
+    //         window.draw(m_sprite_numbers);
+    //     }
+
+    //     window.draw(m_sprite_lines);
+    //     window.draw(m_sprite_line);
+
+    //     std::string lines(std::to_string(m_line_count + (m_level.first) * 10));
+    //     lines.insert(0, 3 - lines.size(), '0');
+    //     for (size_t i{0}; i < 3; ++i)
+    //     {
+    //         m_sprite_numbers.setTextureRect(sf::IntRect((lines.at(i) - 48) * 10, 0, 10, 18));
+    //         m_sprite_numbers.setPosition(1150 + i * 15, 348);
+    //         window.draw(m_sprite_numbers);
+    //     }
+    //     break;
+    // }
 }

@@ -14,3 +14,19 @@ void EditTextPosition(sf::Text &text, float x, float y)
                    text.getLocalBounds().height / 2);
     text.setPosition(x, y);
 }
+
+void UpdateButton(Button &button, float x_pos, float y_pos)
+{
+    if (button.selected)
+    {
+        EditTextContent(button.text, button.text.getString(),
+                        60, Color_Combination::button_pressed);
+        EditTextPosition(button.text, x_pos, y_pos);
+    }
+    else
+    {
+        EditTextContent(button.text, button.text.getString(),
+                        50, Color_Combination::button);
+        EditTextPosition(button.text, x_pos, y_pos);
+    }
+}

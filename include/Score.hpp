@@ -17,50 +17,51 @@
 
 class Score
 {
-private:
-    static const int16_t m_line_reward[5];
+    public:
+        enum PlayerNumber
+        {
+            First,
+            Second
+        };
 
-    int16_t m_line_count;
+    private:
+        static const int16_t m_line_reward[5];
 
-    int32_t m_score_points;
+        int16_t m_line_count;
 
-    std::pair<int16_t, bool> m_level;
+        int32_t m_score_points;
 
-    //const int16_t m_line_reward[5]{0, 100, 300, 500, 800};
-    //std::pair<int16_t, bool> m_level;
-    //int32_t m_score;
-    //int16_t m_score_lines;
+        std::pair<int16_t, bool> m_level;
 
-private:
-    std::map<int32_t, std::string, std::greater<int32_t>> m_ranking_table;
-    //sf::Text m_text_line;
+        int16_t m_number_player;
 
-private:
-    sf::Sprite m_sprite_score;
-    sf::Sprite m_sprite_lines;
-    sf::Sprite m_sprite_line;
+    private:
+        std::map<int32_t, std::string, std::greater<int32_t>> m_ranking_table;
 
-    sf::Sprite m_sprite_numbers;
-    //sf::Text m_text_score;
+    private:
+        sf::Sprite m_sprite_score;
+        sf::Sprite m_sprite_lines;
+        sf::Sprite m_sprite_line;
 
-public:
-    Score();
-    ~Score();
+        sf::Sprite m_sprite_numbers;
 
-    void Init(const sf::Texture &score,
-              const sf::Texture &lines,
-              const sf::Texture &line,
-              const sf::Texture &number,
-              const sf::Font &font);
+    public:
+        Score(int16_t number_player);
+        ~Score();
 
-    void IncreaseScores(const int16_t value);
-    void UpdateScores(const int16_t count_lines);
-    void UpdateRankingTable();
-    void SaveScores();
-    bool LevelChanged();
-    
-    inline const int16_t
-    GetLevel() const { return m_level.first; }
-    //inline int16_t GetScoreLines() const { return m_score_lines; }
-    void Draw(sf::RenderWindow &window);
+        void Init(const sf::Texture &score,
+                  const sf::Texture &lines,
+                  const sf::Texture &line,
+                  const sf::Texture &number);
+
+        void IncreaseScores(const int16_t value);
+        void UpdateScores(const int16_t count_lines);
+        void UpdateRankingTable();
+        void SaveScores();
+        bool LevelChanged();
+
+        inline const int16_t
+        GetLevel() const { return m_level.first; }
+        //inline int16_t GetScoreLines() const { return m_score_lines; }
+        void Draw(sf::RenderWindow &window);
 };

@@ -7,6 +7,7 @@
 #pragma once
 
 #include <memory>
+#include <vector>
 
 #include <SFML/Graphics/Text.hpp>
 
@@ -27,8 +28,14 @@ private:
     sf::Text m_title;
 
 private:
-    Button m_play;
-    Button m_exit;
+    enum ButtonType
+    {
+        Play,
+        PlayerVsPlayer,
+        Option,
+        Exit
+    };
+    std::vector<Button> m_button;
 
 private:
     sf::Music m_music;

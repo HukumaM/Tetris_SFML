@@ -1,14 +1,16 @@
+#include <iostream>
 
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Keyboard.hpp>
 
 #include "Menu.hpp"
+#include "OptionProcess.hpp"
 #include "PlayProcess.hpp"
+#include "PvP.hpp"
 
 Menu::Menu(std::shared_ptr<Context> &context)
     : m_context(context),
-      m_play(true, false),
-      m_exit(false, false)
+      m_button({{true, false}, {false, false}, {false, false}, {false, false}})
 {
 }
 
@@ -18,48 +20,58 @@ Menu::~Menu()
 
 void Menu::Init()
 {
-    auto x_window_size = m_context->m_window->getSize().x;
-    auto y_window_size = m_context->m_window->getSize().y;
+    auto x_size = m_context->m_window->getSize().x;
+    auto y_size = m_context->m_window->getSize().y;
 
     m_context->m_assets->AddFont(MAIN_FONT, "assets/fonts/Oswald-Regular.ttf");
 
     // Title text
     m_title.setFont(m_context->m_assets->GetFont(MAIN_FONT));
     EditTextContent(m_title, "TETRIS", 100, Color_Combination::title);
-    EditTextPosition(m_title, x_window_size / 2, y_window_size / 8);
-
-    //  Text of the play button
-    m_play.text.setFont(m_context->m_assets->GetFont(MAIN_FONT));
-    EditTextContent(m_play.text, "PLAY", 50, Color_Combination::button);
-    EditTextPosition(m_play.text, x_window_size / 2, y_window_size / 2);
-
-    // Text of the exit button
-    m_exit.text.setFont(m_context->m_assets->GetFont(MAIN_FONT));
-    EditTextContent(m_exit.text, "EXIT", 50, Color_Combination::button);
-    EditTextPosition(m_exit.text, x_window_size / 2, 3 * y_window_size / 5);
+    EditTextPosition(m_title, x_size / 2, y_size / 8);
 
     // Audio
-    if (m_music.openFromFile("assets/audio/title.ogg"))
-    {
-        m_music.setLoop(true);
-        m_music.setVolume(50.f);
-        m_music.play();
-    }
-    if (m_sound_buffer.loadFromFile("assets/audio/selection.wav"))
-    {
-        m_sound_selection.setBuffer(m_sound_buffer);
-        m_sound_selection.setVolume(50.f);
-    }
+
+    Audio::LoadMusic(Audio::MAIN_MUSIC, "assets/audio/title.ogg", true, true);
+    Audio::GetMusic(Audio::MAIN_MUSIC).setVolume(Audio::GetVolumeMusic());
+
+    Audio::LoadSound(Audio::SELECTION, "assets/audio/selection.wav");
+    Audio::GetSound(Audio::SELECTION).setVolume(Audio::GetVolumeFX());
+
+    Audio::LoadSound(Audio::GAME_OVER, "assets/audio/game_over.ogg");
+    Audio::GetSound(Audio::GAME_OVER).setVolume(Audio::GetVolumeFX());
+
+    m_button.at(ButtonType::Play).text.setFont(m_context->m_assets->GetFont(MAIN_FONT));
+    EditTextContent(m_button.at(ButtonType::Play).text, "Play", 50, Color_Combination::button);
+    EditTextPosition(m_button.at(ButtonType::Play).text, x_size / 2, y_size / 2);
+
+    m_button.at(ButtonType::PlayerVsPlayer).text.setFont(m_context->m_assets->GetFont(MAIN_FONT));
+    EditTextContent(m_button.at(ButtonType::PlayerVsPlayer).text, "PvP", 50, Color_Combination::button);
+    EditTextPosition(m_button.at(ButtonType::PlayerVsPlayer).text, x_size / 2, 3 * y_size / 5);
+
+    m_button.at(ButtonType::Option).text.setFont(m_context->m_assets->GetFont(MAIN_FONT));
+    EditTextContent(m_button.at(ButtonType::Option).text, "Option", 50, Color_Combination::button);
+    EditTextPosition(m_button.at(ButtonType::Option).text, x_size / 2, 7 * y_size / 10);
+
+    m_button.at(ButtonType::Exit).text.setFont(m_context->m_assets->GetFont(MAIN_FONT));
+    EditTextContent(m_button.at(ButtonType::Exit).text, "Exit", 50, Color_Combination::button);
+    EditTextPosition(m_button.at(ButtonType::Exit).text, x_size / 2, 4 * y_size / 5);
 }
 
 void Menu::ProcessInput()
 {
     sf::Event event;
+
+    m_button.at(ButtonType::Play).pressed = false;
+    m_button.at(ButtonType::PlayerVsPlayer).pressed = false;
+    m_button.at(ButtonType::Option).pressed = false;
+    m_button.at(ButtonType::Exit).pressed = false;
+
     while (m_context->m_window->pollEvent(event))
     {
         if (event.type == sf::Event::Closed)
         {
-            m_music.stop();
+            Audio::GetMusic(Audio::MAIN_MUSIC).stop();
             m_context->m_window->close();
         }
         else if (event.type == sf::Event::KeyPressed)
@@ -68,44 +80,79 @@ void Menu::ProcessInput()
             {
             case sf::Keyboard::Escape:
             {
-                m_music.stop();
+                Audio::GetMusic(Audio::MAIN_MUSIC).stop();
                 m_context->m_window->close();
                 break;
             }
             case sf::Keyboard::Up:
             {
-                m_sound_selection.play();
-                if (!m_play.selected)
+                Audio::GetSound(Audio::SELECTION).play();
+
+                if (m_button.at(ButtonType::Exit).selected)
                 {
-                    m_play.selected = true;
-                    m_exit.selected = false;
+                    m_button.at(ButtonType::Exit).selected = false;
+                    m_button.at(ButtonType::Option).selected = true;
+                }
+                else if (m_button.at(ButtonType::Option).selected)
+                {
+                    m_button.at(ButtonType::Option).selected = false;
+                    m_button.at(ButtonType::PlayerVsPlayer).selected = true;
+                }
+                else if (m_button.at(ButtonType::PlayerVsPlayer).selected)
+                {
+                    m_button.at(ButtonType::PlayerVsPlayer).selected = false;
+                    m_button.at(ButtonType::Play).selected = true;
+                }
+                else
+                {
+                    m_button.at(ButtonType::Play).selected = true;
                 }
                 break;
             }
             case sf::Keyboard::Down:
             {
-                m_sound_selection.play();
-                if (!m_exit.selected)
+                Audio::GetSound(Audio::SELECTION).play();
+
+                if (m_button.at(ButtonType::Play).selected)
                 {
-                    m_play.selected = false;
-                    m_exit.selected = true;
+                    m_button.at(ButtonType::Play).selected = false;
+                    m_button.at(ButtonType::PlayerVsPlayer).selected = true;
+                }
+                else if (m_button.at(ButtonType::PlayerVsPlayer).selected)
+                {
+                    m_button.at(ButtonType::PlayerVsPlayer).selected = false;
+                    m_button.at(ButtonType::Option).selected = true;
+                }
+                else if (m_button.at(ButtonType::Option).selected)
+                {
+                    m_button.at(ButtonType::Option).selected = false;
+                    m_button.at(ButtonType::Exit).selected = true;
+                }
+                else
+                {
+                    m_button.at(ButtonType::Exit).selected = true;
                 }
                 break;
             }
             case sf::Keyboard::Return:
             {
-                m_sound_selection.play();
+                Audio::GetSound(Audio::SELECTION).play();
 
-                m_play.pressed = false;
-                m_exit.pressed = false;
-
-                if (m_play.selected)
+                if (m_button.at(ButtonType::Play).selected)
                 {
-                    m_play.pressed = true;
+                    m_button.at(ButtonType::Play).pressed = true;
                 }
-                else
+                else if (m_button.at(ButtonType::PlayerVsPlayer).selected)
                 {
-                    m_exit.pressed = true;
+                    m_button.at(ButtonType::PlayerVsPlayer).pressed = true;
+                }
+                else if (m_button.at(ButtonType::Option).selected)
+                {
+                    m_button.at(ButtonType::Option).pressed = true;
+                }
+                else if (m_button.at(ButtonType::Exit).selected)
+                {
+                    m_button.at(ButtonType::Exit).pressed = true;
                 }
                 break;
             }
@@ -118,47 +165,41 @@ void Menu::ProcessInput()
 
 void Menu::Update(sf::Time delta_time)
 {
-    auto x_window_size = m_context->m_window->getSize().x;
-    auto y_window_size = m_context->m_window->getSize().y;
+    auto x_size = m_context->m_window->getSize().x;
+    auto y_size = m_context->m_window->getSize().y;
 
-    if (m_play.selected)
-    {
-        EditTextContent(m_play.text, m_play.text.getString(), 60,
-                        Color_Combination::button_pressed);
-        EditTextPosition(m_play.text, x_window_size / 2, y_window_size / 2);
-    }
-    else
-    {
-        EditTextContent(m_play.text, m_play.text.getString(),
-                        50, Color_Combination::button);
-        EditTextPosition(m_play.text,
-                         x_window_size / 2, y_window_size / 2);
-    }
+    Audio::GetMusic(Audio::MAIN_MUSIC).setVolume(Audio::GetVolumeMusic());
+    Audio::GetSound(Audio::SELECTION).setVolume(Audio::GetVolumeFX());
 
-    if (m_exit.selected)
-    {
-        EditTextContent(m_exit.text, m_exit.text.getString(), 60,
-                        Color_Combination::button_pressed);
-        EditTextPosition(m_exit.text,
-                         x_window_size / 2, 3 * y_window_size / 5);
-    }
-    else
-    {
-        EditTextContent(m_exit.text, m_exit.text.getString(), 50,
-                        Color_Combination::button);
-        EditTextPosition(m_exit.text,
-                         x_window_size / 2, 3 * y_window_size / 5);
-    }
+    UpdateButton(m_button.at(ButtonType::Play), x_size / 2, y_size / 2);
+    UpdateButton(m_button.at(ButtonType::PlayerVsPlayer), x_size / 2, 3 * y_size / 5);
+    UpdateButton(m_button.at(ButtonType::Option), x_size / 2, 7 * y_size / 10);
+    UpdateButton(m_button.at(ButtonType::Exit), x_size / 2, 4 * y_size / 5);
 
-    if (m_play.pressed)
+    if (m_button.at(ButtonType::Play).pressed)
     {
-        m_music.stop();
+        std::cout << "launch playing" << std::endl;
+        Audio::GetMusic(Audio::MAIN_MUSIC).stop();
         m_context->m_states->PushState(
             std::make_unique<PlayProcess>(m_context), true);
     }
-    else if (m_exit.pressed)
+    else if (m_button.at(ButtonType::PlayerVsPlayer).pressed)
     {
-        m_music.stop();
+        std::cout << "launch pvp" << std::endl;
+        Audio::GetMusic(Audio::MAIN_MUSIC).stop();
+        m_context->m_states->PushState(
+            std::make_unique<PvP>(m_context), true);
+    }
+    else if (m_button.at(ButtonType::Option).pressed)
+    {
+        std::cout << "launch option" << std::endl;
+        m_context->m_states->PushState(
+            std::make_unique<OptionProcess>(m_context));
+    }
+    else if (m_button.at(ButtonType::Exit).pressed)
+    {
+        std::cout << "launch exit" << std::endl;
+        Audio::GetMusic(Audio::MAIN_MUSIC).stop();
         m_context->m_window->close();
     }
 }
@@ -167,7 +208,10 @@ void Menu::Draw()
 {
     m_context->m_window->clear(Color_Combination::background);
     m_context->m_window->draw(m_title);
-    m_context->m_window->draw(m_play.text);
-    m_context->m_window->draw(m_exit.text);
+    m_context->m_window->draw(m_button.at(ButtonType::Play).text);
+    m_context->m_window->draw(m_button.at(ButtonType::PlayerVsPlayer).text);
+    m_context->m_window->draw(m_button.at(ButtonType::Option).text);
+    m_context->m_window->draw(m_button.at(ButtonType::Exit).text);
+
     m_context->m_window->display();
 }

@@ -28,18 +28,19 @@ private:
     sf::Text m_pause;
 
 private:
-    Button m_continue;
-    Button m_restart;
-    Button m_option;
-    Button m_exit;
-
+    enum ButtonType
+    {
+        Continue,
+        Restart,    
+        Option,
+        Exit
+    };
+    std::vector<Button> m_button;
+    
 private:
     sf::SoundBuffer m_sound_buffer;
     sf::Sound m_sound_selection;
     sf::Music m_music;
-
-private:
-    void UpdateButton(Button &button, float x_pos, float y_pos);
 
 public:
     //  Menu class onstructor

@@ -2,8 +2,9 @@
 
 #include "Field.hpp"
 
-Field::Field()
-    : m_field(std::vector<std::vector<int16_t>>(20, std::vector<int16_t>(10, 0)))
+Field::Field(int16_t number_player)
+    : m_field(std::vector<std::vector<int16_t>>(20, std::vector<int16_t>(10, 0))),
+      m_number_player(number_player)
 {
 }
 Field::~Field()
@@ -102,7 +103,7 @@ void Field::Draw(sf::RenderWindow &window)
     {
         for (size_t j{0}; j < WIDTH_FIELD; ++j)
         {
-            this->m_sprite.setPosition(j * 36, i * 36);
+            this->m_sprite.setPosition(j * 36 + (m_number_player ? 540 : 0), i * 36);
             this->m_sprite.setTextureRect(sf::IntRect(
                 this->m_field.at(i).at(j) * 18, 0, 18, 18));
             window.draw(this->m_sprite);

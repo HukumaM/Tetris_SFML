@@ -18,6 +18,7 @@ void EditTextContent(sf::Text &text, const sf::String &string, unsigned int size
 //  @param  y       y-axis coordinate
 void EditTextPosition(sf::Text &text, float x, float y);
 
+
 struct Button
 {
     sf::Text text;
@@ -28,6 +29,8 @@ struct Button
     {
     }
 };
+
+void UpdateButton(Button &button, float x_pos, float y_pos);
 
 namespace Color_Combination
 {

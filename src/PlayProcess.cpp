@@ -6,9 +6,10 @@
 
 PlayProcess::PlayProcess(std::shared_ptr<Context> &context)
     : m_context(context),
-      m_tetromino(std::make_shared<Tetromino>()),
-      m_field(std::make_shared<Field>()),
-      m_score(std::make_shared<Score>()),
+      m_tetromino(std::make_shared<Tetromino>(Score::PlayerNumber::First)),
+      m_field(std::make_shared<Field>(Score::PlayerNumber::First)),
+      m_score(std::make_shared<Score>(Score::PlayerNumber::First)),
+      m_music(std::make_unique<sf::Music>()),
       m_time_fall(sf::seconds(0.3f)),
       m_time_tick(sf::seconds(0.7f))
 {
@@ -20,6 +21,12 @@ PlayProcess::~PlayProcess()
 
 void PlayProcess::Init()
 {
+    if (m_context->m_window->getSize() != sf::Vector2u(540, 720))
+    {
+        m_context->m_window->close();
+        m_context->m_window->create(sf::VideoMode(WIDTH_LOW, HEIGHT_LOW), "Tetris",
+                                    sf::Style::Titlebar | sf::Style::Close);
+    }
     m_context->m_assets->AddTexture(TILES_SEA,
                                     "assets/textures/tiles_seas.png");
     m_context->m_assets->AddTexture(TILES_SEA_SHADOW,
@@ -47,39 +54,25 @@ void PlayProcess::Init()
     m_score->Init(m_context->m_assets->GetTexture(SCORE_TABLE),
                   m_context->m_assets->GetTexture(LINES_TABLE),
                   m_context->m_assets->GetTexture(LINE_TABLE),
-                  m_context->m_assets->GetTexture(NUMBERS),
-                  m_context->m_assets->GetFont(MAIN_FONT));
+                  m_context->m_assets->GetTexture(NUMBERS));
 
-    // m_score->Init(m_context->m_assets->GetTexture(SCORE_TABLE),
-    //               m_context->m_assets->GetTexture(NUMBERS),
-    //               m_context->m_assets->GetFont(MAIN_FONT));
-    // m_tetromino->Init(m_context->m_assets->GetTexture(TILES_RAINBOW),
-    //                   m_context->m_assets->GetTexture(TILES_RAINBOW_SHADOW));
-    // m_field->Init(m_context->m_assets->GetTexture(TILES_RAINBOW));
-    // m_score->Init(m_context->m_assets->GetTexture(TILES_RAINBOW),
-    //               m_context->m_assets->GetFont(MAIN_FONT));
+    Audio::LoadMusic(Audio::A_STAGE_MUSIC, "assets/audio/a_type_music.ogg", true, true);
+    Audio::LoadMusic(Audio::B_STAGE_MUSIC, "assets/audio/b_type_music.ogg", true);
+    Audio::LoadMusic(Audio::C_STAGE_MUSIC, "assets/audio/c_type_music.ogg", true);
 
-    if (m_music.openFromFile("assets/audio/a_type_music.ogg"))
-    {
-        m_music.play();
-        m_music.setLoop(true);
-        m_music.setVolume(50.f);
-    }
+    m_music = std::move(Audio::GetMusicPtr(Audio::A_STAGE_MUSIC));
+    m_music->setVolume(Audio::GetVolumeMusic());
+    m_music->setLoopPoints(sf::Music::TimeSpan(sf::Time::Zero, sf::seconds(170)));
 
-    if (m_buffer_clear_line.loadFromFile("assets/audio/line.wav"))
-    {
-        m_sound_clear_line.setBuffer(m_buffer_clear_line);
-    }
-    if (m_buffer_fall.loadFromFile("assets/audio/fall.wav"))
-    {
-        m_sound_fall.setBuffer(m_buffer_fall);
-    }
-    if (m_buffer_move.loadFromFile("assets/audio/selection.wav"))
-    {
-        m_sound_move.setBuffer(m_buffer_move);
-        m_sound_move.setPitch(1.f);
-        m_sound_move.setVolume(50.f);
-    }
+    Audio::LoadSound(Audio::CLEAN_LINE, "assets/audio/line.wav");
+    Audio::GetSound(Audio::CLEAN_LINE).setVolume(Audio::GetVolumeFX());
+
+    Audio::LoadSound(Audio::FALL, "assets/audio/fall.wav");
+    Audio::GetSound(Audio::FALL).setVolume(Audio::GetVolumeFX());
+
+    Audio::LoadSound(Audio::MOVE, "assets/audio/selection.wav");
+    Audio::GetSound(Audio::MOVE).setVolume(Audio::GetVolumeFX());
+    Audio::GetSound(Audio::MOVE).setPitch(1.4f);
 }
 
 void PlayProcess::ProcessInput()
@@ -89,7 +82,7 @@ void PlayProcess::ProcessInput()
     {
         if (event.type == sf::Event::Closed)
         {
-            m_music.stop();
+            m_music->stop();
             m_context->m_window->close();
         }
         else if (event.type == sf::Event::KeyPressed)
@@ -98,7 +91,6 @@ void PlayProcess::ProcessInput()
             {
             case sf::Keyboard::Escape:
             {
-                m_music.pause();
                 m_context->m_states->PushState(std::make_unique<PauseProcess>(m_context));
                 break;
             }
@@ -107,7 +99,7 @@ void PlayProcess::ProcessInput()
                 if (m_tetromino->Rotate(*m_field))
                 {
                     m_elapsed_time_tick = sf::Time::Zero;
-                    m_sound_move.play();
+                    Audio::GetSound(Audio::MOVE).play();
                 }
                 break;
             }
@@ -150,8 +142,13 @@ void PlayProcess::ProcessInput()
                     m_tetromino->Move(0, DOWN);
                     m_score->IncreaseScores(7);
                     m_elapsed_time_tick = sf::Time::Zero;
-                    m_sound_fall.play();
+                    Audio::GetSound(Audio::FALL).play();
                 }
+                break;
+            }
+            case sf::Keyboard::RControl:
+            {
+                m_score->UpdateScores(1);
                 break;
             }
             default:
@@ -165,6 +162,12 @@ void PlayProcess::Update(sf::Time delta_time)
 {
     if (!m_pause)
     {
+        Audio::GetSound(Audio::FALL).setVolume(Audio::GetVolumeFX());
+        Audio::GetSound(Audio::MOVE).setVolume(Audio::GetVolumeFX());
+        Audio::GetSound(Audio::CLEAN_LINE).setVolume(Audio::GetVolumeFX());
+
+        m_music->setVolume(Audio::GetVolumeMusic());
+
         m_elapsed_time_fall += delta_time;
         m_elapsed_time_tick += delta_time;
 
@@ -188,35 +191,35 @@ void PlayProcess::Update(sf::Time delta_time)
                 m_tetromino->Create();
                 if (m_field->FigureOnCells(m_tetromino->GetCurrentFigure()))
                 {
-                    m_music.stop();
+                    m_music->stop();
                     m_context->m_states->PushState(std::make_unique<GameOver>(m_context), true);
                     m_score->SaveScores();
                     m_score->UpdateRankingTable();
                 }
                 if (m_field->ClearLines(*m_score))
                 {
-                    m_sound_clear_line.play();
+                    Audio::GetSound(Audio::CLEAN_LINE).play();
                 }
-                if (m_score->LevelChanged()) 
+                if (m_score->LevelChanged())
                 {
                     m_time_fall -= sf::seconds(0.015f);
                     m_time_tick -= sf::seconds(0.025f);
-                }
-                if (m_score->LevelChanged() && m_score->GetLevel() == 6)
-                {
-                    m_music.stop();
-                    if (m_music.openFromFile("assets/audio/b_type_music.ogg"))
+
+                    auto level = m_score->GetLevel();
+                    if (level == 6)
                     {
-                        m_music.play();
+                        m_music->stop();
+                        m_music = std::move(Audio::GetMusicPtr(Audio::B_STAGE_MUSIC));
+                        m_music->play();
                     }
-                }
-                else if (m_score->LevelChanged() && m_score->GetLevel() == 11)
-                {
-                    m_music.stop();
-                    if (m_music.openFromFile("assets/audio/c_type_music.ogg"))
+                    else if (level == 11)
                     {
-                        m_music.play();
+                        m_music->stop();
+                        m_music = std::move(Audio::GetMusicPtr(Audio::C_STAGE_MUSIC));
+                        m_music->play();
                     }
+
+                    m_music->setPitch(static_cast<float>(level) / 40.f + 1.f);
                 }
             }
             m_elapsed_time_fall = sf::Time::Zero;
@@ -230,26 +233,20 @@ void PlayProcess::Update(sf::Time delta_time)
 void PlayProcess::Draw()
 {
     m_context->m_window->clear();
-    m_field->Draw(*m_context->m_window);
-    m_score->Draw(*m_context->m_window);
-    m_tetromino->Draw(*m_context->m_window);
+    m_field->Draw(*m_context->m_window.get());
+    m_score->Draw(*m_context->m_window.get());
+    m_tetromino->Draw(*m_context->m_window.get());
     m_context->m_window->display();
 }
 
 void PlayProcess::Pause()
 {
     m_pause = true;
-    if (m_music.getStatus() == sf::Sound::Paused)
-    {
-        m_music.pause();
-    }
+    m_music->pause();
 }
 
 void PlayProcess::Launch()
 {
     m_pause = false;
-    if (m_music.getStatus() == sf::Sound::Paused)
-    {
-        m_music.play();
-    }
+    m_music->play();
 }

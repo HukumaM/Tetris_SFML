@@ -57,6 +57,8 @@ private:
 
     int16_t m_color;
 
+    int16_t m_number_player;
+
 private:
     std::random_device random;
     std::uniform_int_distribution<int16_t> dist{1, 7};
@@ -65,7 +67,7 @@ private:
     void GetShadow();
 
 public:
-    Tetromino();
+    Tetromino(int16_t number_player);
     ~Tetromino();
 
     void Create();
